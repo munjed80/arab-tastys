@@ -1,0 +1,48 @@
+export type ArabCountry = 
+  | 'مصر' | 'لبنان' | 'سوريا' | 'الأردن' | 'فلسطين'
+  | 'العراق' | 'السعودية' | 'الإمارات' | 'الكويت' | 'قطر'
+  | 'البحرين' | 'عمان' | 'اليمن' | 'المغرب' | 'الجزائر'
+  | 'تونس' | 'ليبيا' | 'السودان' | 'الصومال' | 'جيبوتي'
+  | 'موريتانيا' | 'جزر القمر';
+
+export type InternationalCuisine = 
+  | 'إيطالي' | 'صيني' | 'هندي' | 'فرنسي' | 'ياباني';
+
+export type MealType = 'إفطار' | 'غداء' | 'عشاء' | 'حلويات';
+
+export type DifficultyLevel = 'سهل' | 'متوسط' | 'صعب';
+
+export type CuisineCategory = 'عربي' | 'عالمي';
+
+export interface NutritionalInfo {
+  calories: number;
+  protein: number;
+  sugar: number;
+  fat: number;
+  carbs: number;
+}
+
+export interface Recipe {
+  id: string;
+  name: string;
+  cuisine: ArabCountry | InternationalCuisine;
+  cuisineCategory: CuisineCategory;
+  mealType: MealType;
+  difficulty: DifficultyLevel;
+  prepTime: number;
+  cookTime: number;
+  totalTime: number;
+  servings: number;
+  ingredients: string[];
+  steps: string[];
+  nutritionalInfo: NutritionalInfo;
+  imageUrl?: string;
+}
+
+export interface FilterOptions {
+  search: string;
+  cuisineCategory: CuisineCategory | 'الكل';
+  cuisine: (ArabCountry | InternationalCuisine)[];
+  mealType: MealType[];
+  difficulty: DifficultyLevel[];
+}
