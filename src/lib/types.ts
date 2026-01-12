@@ -57,6 +57,7 @@ export interface PhotoComment {
   userAvatar?: string;
   comment: string;
   createdAt: number;
+  reactions?: Record<string, string[]>;
 }
 
 export interface RecipeRating {

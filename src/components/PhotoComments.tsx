@@ -1,14 +1,17 @@
 import { useState } from 'react';
-import { PaperPlaneRight, Trash, Chat } from '@phosphor-icons/react';
+import { PaperPlaneRight, Trash, Chat, Smiley } from '@phosphor-icons/react';
 import { useKV } from '@github/spark/hooks';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
 import type { PhotoComment } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+
+const EMOJI_REACTIONS = ['❤️', '👍', '😂', '😮', '😢', '🔥'];
 
 interface PhotoCommentsProps {
   photoId: string;
@@ -72,6 +75,53 @@ export function PhotoComments({ photoId, currentUserId, onLoginRequired }: Photo
     toast.success('تم حذف التعليق');
   };
 
+  const handleReaction = (commentId: string, emoji: string) => {
+    if (!currentUserId) {
+      onLoginRequired();
+      return;
+    }
+
+    setAllComments(current => 
+      (current || []).map(comment => {
+        if (comment.id !== commentId) return comment;
+
+        const reactions = comment.reactions || {};
+        const userIds = reactions[emoji] || [];
+        
+        const hasReacted = userIds.includes(currentUserId);
+        
+        if (hasReacted) {
+          const newUserIds = userIds.filter(id => id !== currentUserId);
+          if (newUserIds.length === 0) {
+            const { [emoji]: _, ...restReactions } = reactions;
+            return { ...comment, reactions: restReactions };
+          }
+          return {
+            ...comment,
+            reactions: { ...reactions, [emoji]: newUserIds }
+          };
+        } else {
+          return {
+            ...comment,
+            reactions: { ...reactions, [emoji]: [...userIds, currentUserId] }
+          };
+        }
+      })
+    );
+  };
+
+  const getReactionCount = (reactions?: Record<string, string[]>, emoji?: string) => {
+    if (!reactions) return 0;
+    if (emoji) return reactions[emoji]?.length || 0;
+    return Object.values(reactions).reduce((sum, ids) => sum + ids.length, 0);
+  };
+
+  const hasUserReacted = (reactions?: Record<string, string[]>, emoji?: string) => {
+    if (!reactions || !currentUserId) return false;
+    if (emoji) return reactions[emoji]?.includes(currentUserId) || false;
+    return Object.values(reactions).some(ids => ids.includes(currentUserId));
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 pb-2 border-b border-border">
@@ -121,9 +171,65 @@ export function PhotoComments({ photoId, currentUserId, onLoginRequired }: Photo
                       {comment.comment}
                     </p>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1 mr-3">
-                    {formatDistanceToNow(comment.createdAt, { addSuffix: true, locale: ar })}
-                  </p>
+
+                  <div className="flex items-center gap-2 mt-2 mr-3">
+                    {comment.reactions && Object.keys(comment.reactions).length > 0 && (
+                      <div className="flex items-center gap-1 bg-background border border-border rounded-full px-2 py-1">
+                        {Object.entries(comment.reactions)
+                          .filter(([_, userIds]) => userIds.length > 0)
+                          .map(([emoji, userIds]) => (
+                            <button
+                              key={emoji}
+                              onClick={() => handleReaction(comment.id, emoji)}
+                              className={`flex items-center gap-1 transition-all hover:scale-110 ${
+                                hasUserReacted(comment.reactions, emoji) ? 'scale-110' : ''
+                              }`}
+                              title={`${userIds.length} تفاعل`}
+                            >
+                              <span className="text-sm">{emoji}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {userIds.length}
+                              </span>
+                            </button>
+                          ))}
+                      </div>
+                    )}
+
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2 gap-1.5 text-muted-foreground hover:text-foreground"
+                        >
+                          <Smiley size={16} weight="duotone" />
+                          <span className="text-xs">تفاعل</span>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-2" align="start">
+                        <div className="flex gap-1">
+                          {EMOJI_REACTIONS.map((emoji) => (
+                            <button
+                              key={emoji}
+                              onClick={() => handleReaction(comment.id, emoji)}
+                              className={`text-2xl hover:scale-125 transition-transform p-1.5 rounded-lg hover:bg-accent ${
+                                hasUserReacted(comment.reactions, emoji) 
+                                  ? 'bg-accent scale-110' 
+                                  : ''
+                              }`}
+                              title={emoji}
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+
+                    <p className="text-xs text-muted-foreground">
+                      {formatDistanceToNow(comment.createdAt, { addSuffix: true, locale: ar })}
+                    </p>
+                  </div>
                 </div>
               </div>
             ))}
