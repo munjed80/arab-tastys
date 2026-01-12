@@ -1,10 +1,13 @@
 import { Clock, ChefHat, Users, Flame, X } from '@phosphor-icons/react';
+import { useEffect, useState } from 'react';
 import type { Recipe } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ShareButton } from '@/components/ShareButton';
+import { RecipeReviews } from '@/components/RecipeReviews';
 
 interface RecipeDetailProps {
   recipe: Recipe | null;
@@ -13,6 +16,24 @@ interface RecipeDetailProps {
 }
 
 export function RecipeDetail({ recipe, open, onClose }: RecipeDetailProps) {
+  const [user, setUser] = useState<{ id: string; login: string; avatarUrl?: string } | null>(null);
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const userData = await spark.user();
+        setUser({
+          id: userData.id,
+          login: userData.login,
+          avatarUrl: userData.avatarUrl,
+        });
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    }
+    fetchUser();
+  }, []);
+
   if (!recipe) return null;
 
   const difficultyColors = {
@@ -62,110 +83,127 @@ export function RecipeDetail({ recipe, open, onClose }: RecipeDetailProps) {
         </div>
 
         <ScrollArea className="max-h-[calc(90vh-16rem)] px-6 pb-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-6">
-            <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-              <Clock size={24} weight="duotone" className="text-primary" />
+          <Tabs defaultValue="recipe" dir="rtl" className="w-full">
+            <TabsList className="w-full grid grid-cols-2 mb-6">
+              <TabsTrigger value="recipe">الوصفة</TabsTrigger>
+              <TabsTrigger value="reviews">التقييمات والتعليقات</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="recipe" className="space-y-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                  <Clock size={24} weight="duotone" className="text-primary" />
+                  <div>
+                    <div className="text-xs text-muted-foreground">وقت التحضير</div>
+                    <div className="font-semibold">{recipe.prepTime} دقيقة</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                  <Flame size={24} weight="duotone" className="text-primary" />
+                  <div>
+                    <div className="text-xs text-muted-foreground">وقت الطهي</div>
+                    <div className="font-semibold">{recipe.cookTime} دقيقة</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                  <Clock size={24} weight="duotone" className="text-accent" />
+                  <div>
+                    <div className="text-xs text-muted-foreground">الوقت الكلي</div>
+                    <div className="font-semibold">{recipe.totalTime} دقيقة</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                  <Users size={24} weight="duotone" className="text-accent" />
+                  <div>
+                    <div className="text-xs text-muted-foreground">عدد الحصص</div>
+                    <div className="font-semibold">{recipe.servings} أشخاص</div>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="bg-card border border-border rounded-lg p-6">
+                <h3 className="text-xl font-bold text-secondary mb-4 flex items-center gap-2">
+                  <span className="w-1 h-6 bg-primary rounded-full" />
+                  القيم الغذائية (لكل حصة)
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                  <div className="text-center p-3 bg-muted rounded-lg">
+                    <div className="text-2xl font-bold text-primary">{recipe.nutritionalInfo.calories}</div>
+                    <div className="text-xs text-muted-foreground mt-1">سعرة حرارية</div>
+                  </div>
+                  <div className="text-center p-3 bg-muted rounded-lg">
+                    <div className="text-2xl font-bold text-accent">{recipe.nutritionalInfo.protein}غ</div>
+                    <div className="text-xs text-muted-foreground mt-1">بروتين</div>
+                  </div>
+                  <div className="text-center p-3 bg-muted rounded-lg">
+                    <div className="text-2xl font-bold text-accent">{recipe.nutritionalInfo.carbs}غ</div>
+                    <div className="text-xs text-muted-foreground mt-1">كربوهيدرات</div>
+                  </div>
+                  <div className="text-center p-3 bg-muted rounded-lg">
+                    <div className="text-2xl font-bold text-accent">{recipe.nutritionalInfo.fat}غ</div>
+                    <div className="text-xs text-muted-foreground mt-1">دهون</div>
+                  </div>
+                  <div className="text-center p-3 bg-muted rounded-lg">
+                    <div className="text-2xl font-bold text-accent">{recipe.nutritionalInfo.sugar}غ</div>
+                    <div className="text-xs text-muted-foreground mt-1">سكر</div>
+                  </div>
+                </div>
+              </div>
+
               <div>
-                <div className="text-xs text-muted-foreground">وقت التحضير</div>
-                <div className="font-semibold">{recipe.prepTime} دقيقة</div>
+                <h3 className="text-xl font-bold text-secondary mb-4 flex items-center gap-2">
+                  <span className="w-1 h-6 bg-primary rounded-full" />
+                  المقادير
+                </h3>
+                <ul className="space-y-2">
+                  {recipe.ingredients.map((ingredient, index) => (
+                    <li key={index} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
+                      <span className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
+                        {index + 1}
+                      </span>
+                      <span className="flex-1">{ingredient}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
-            
-            <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-              <Flame size={24} weight="duotone" className="text-primary" />
+
+              <Separator />
+
               <div>
-                <div className="text-xs text-muted-foreground">وقت الطهي</div>
-                <div className="font-semibold">{recipe.cookTime} دقيقة</div>
+                <h3 className="text-xl font-bold text-secondary mb-4 flex items-center gap-2">
+                  <span className="w-1 h-6 bg-primary rounded-full" />
+                  طريقة التحضير
+                </h3>
+                <ol className="space-y-4">
+                  {recipe.steps.map((step, index) => (
+                    <li key={index} className="flex items-start gap-4">
+                      <span className="flex-shrink-0 w-8 h-8 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-base font-bold">
+                        {index + 1}
+                      </span>
+                      <div className="flex-1 pt-1">
+                        <p className="leading-relaxed">{step}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
               </div>
-            </div>
-            
-            <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-              <Clock size={24} weight="duotone" className="text-accent" />
-              <div>
-                <div className="text-xs text-muted-foreground">الوقت الكلي</div>
-                <div className="font-semibold">{recipe.totalTime} دقيقة</div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-              <Users size={24} weight="duotone" className="text-accent" />
-              <div>
-                <div className="text-xs text-muted-foreground">عدد الحصص</div>
-                <div className="font-semibold">{recipe.servings} أشخاص</div>
-              </div>
-            </div>
-          </div>
+            </TabsContent>
 
-          <Separator className="my-6" />
-
-          <div className="space-y-6">
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h3 className="text-xl font-bold text-secondary mb-4 flex items-center gap-2">
-                <span className="w-1 h-6 bg-primary rounded-full" />
-                القيم الغذائية (لكل حصة)
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div className="text-center p-3 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{recipe.nutritionalInfo.calories}</div>
-                  <div className="text-xs text-muted-foreground mt-1">سعرة حرارية</div>
-                </div>
-                <div className="text-center p-3 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold text-accent">{recipe.nutritionalInfo.protein}غ</div>
-                  <div className="text-xs text-muted-foreground mt-1">بروتين</div>
-                </div>
-                <div className="text-center p-3 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold text-accent">{recipe.nutritionalInfo.carbs}غ</div>
-                  <div className="text-xs text-muted-foreground mt-1">كربوهيدرات</div>
-                </div>
-                <div className="text-center p-3 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold text-accent">{recipe.nutritionalInfo.fat}غ</div>
-                  <div className="text-xs text-muted-foreground mt-1">دهون</div>
-                </div>
-                <div className="text-center p-3 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold text-accent">{recipe.nutritionalInfo.sugar}غ</div>
-                  <div className="text-xs text-muted-foreground mt-1">سكر</div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-bold text-secondary mb-4 flex items-center gap-2">
-                <span className="w-1 h-6 bg-primary rounded-full" />
-                المقادير
-              </h3>
-              <ul className="space-y-2">
-                {recipe.ingredients.map((ingredient, index) => (
-                  <li key={index} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
-                    <span className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
-                      {index + 1}
-                    </span>
-                    <span className="flex-1">{ingredient}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <Separator />
-
-            <div>
-              <h3 className="text-xl font-bold text-secondary mb-4 flex items-center gap-2">
-                <span className="w-1 h-6 bg-primary rounded-full" />
-                طريقة التحضير
-              </h3>
-              <ol className="space-y-4">
-                {recipe.steps.map((step, index) => (
-                  <li key={index} className="flex items-start gap-4">
-                    <span className="flex-shrink-0 w-8 h-8 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-base font-bold">
-                      {index + 1}
-                    </span>
-                    <div className="flex-1 pt-1">
-                      <p className="leading-relaxed">{step}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
+            <TabsContent value="reviews">
+              <RecipeReviews
+                recipeId={recipe.id}
+                recipeName={recipe.name}
+                currentUserId={user?.id}
+                currentUserName={user?.login}
+                currentUserAvatar={user?.avatarUrl}
+              />
+            </TabsContent>
+          </Tabs>
         </ScrollArea>
       </DialogContent>
     </Dialog>

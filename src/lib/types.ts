@@ -22,6 +22,32 @@ export interface NutritionalInfo {
   carbs: number;
 }
 
+export interface Review {
+  id: string;
+  recipeId: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  rating: number;
+  comment: string;
+  createdAt: number;
+  likes: number;
+  likedBy: string[];
+}
+
+export interface RecipeRating {
+  recipeId: string;
+  averageRating: number;
+  totalReviews: number;
+  ratingDistribution: {
+    1: number;
+    2: number;
+    3: number;
+    4: number;
+    5: number;
+  };
+}
+
 export interface Recipe {
   id: string;
   name: string;

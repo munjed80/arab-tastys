@@ -54,6 +54,13 @@ This is a content-rich application with multiple interconnected features includi
 - Progression: User clicks share button → popover opens with platform options → user selects platform → share window opens or link copied → success confirmation shown
 - Success criteria: Share URLs contain recipe title and description, all platforms open correctly, copy-to-clipboard works reliably, clear success feedback provided
 
+**Recipe Reviews and Ratings System**
+- Functionality: Users can rate recipes (1-5 stars) and leave written reviews with comments about their cooking experience
+- Purpose: Build community engagement, provide social proof, and help users choose recipes based on others' experiences
+- Trigger: Clicking on a recipe to view details, then navigating to the reviews tab
+- Progression: User views recipe → switches to reviews tab → sees rating overview and distribution → reads existing reviews → adds their own rating and comment → review posted with success confirmation → can like/unlike other reviews → can delete their own review
+- Success criteria: Rating system accurately calculates and displays average ratings, reviews are sorted by various criteria (newest, highest rated, most liked), review form validates input, users can only review each recipe once, rating distribution chart clearly visualizes all ratings
+
 ## Edge Case Handling
 
 - **No Search Results**: Display helpful message with suggestion to try different keywords or browse by category
@@ -62,6 +69,9 @@ This is a content-rich application with multiple interconnected features includi
 - **Long Recipe Names**: Truncate with ellipsis in cards, show full name in detail view
 - **Very Long Ingredient Lists**: Use scroll container with visual indicator for more items
 - **Mobile Touch Interactions**: Ensure filter panels slide smoothly, cards have adequate touch targets, recipe steps easy to read while cooking
+- **No Reviews Yet**: Display inviting empty state encouraging users to be the first to review
+- **Duplicate Reviews**: Prevent users from submitting multiple reviews for the same recipe
+- **User Not Logged In**: Show reviews but disable rating/commenting functionality with clear login prompt
 
 ## Design Direction
 
@@ -116,13 +126,19 @@ Animations should feel organic and purposeful, like flipping through a cookbook 
   - Separator: Dividing sections within recipe details
   - Button: Primary actions (view recipe), filter chips (clear, apply)
   - Scroll-area: Long ingredient lists and step-by-step instructions
-  - Tabs: Switching between "جميع الوصفات", "عربي", "عالمي" views
+  - Tabs: Switching between recipe details and reviews sections, as well as "جميع الوصفات", "عربي", "عالمي" views
   - Sheet: Mobile filter panel sliding from right side
+  - Avatar: User profile pictures in review cards
+  - Textarea: Multi-line review comment input
+  - Progress: Visual rating distribution bars showing percentage of each star rating
   
 - **Customizations**: 
-  - Custom recipe card component with image, gradient overlay, and metadata grid
+  - Custom recipe card component with image, gradient overlay, metadata grid, and rating stars
   - Custom nutrition facts table component styled like traditional food labels
   - Custom time indicator component with icons for prep/cook/total time
+  - Custom rating stars component with interactive (clickable) and display-only modes
+  - Custom review card with user info, timestamp, rating, comment, and like functionality
+  - Custom rating overview with average score, total count, and distribution chart
   - RTL-optimized layout wrapper ensuring all components flow right-to-left
   
 - **States**: 
@@ -140,6 +156,12 @@ Animations should feel organic and purposeful, like flipping through a cookbook 
   - MagnifyingGlass for search
   - FunnelSimple for filters
   - X for clear/close actions
+  - Star for ratings (filled, outlined, and half states)
+  - ChatCircleDots for reviews/comments section
+  - ThumbsUp for liking reviews
+  - PaperPlaneRight for submitting reviews
+  - Trash for deleting reviews
+  - SortAscending for review sorting options
   
 - **Spacing**: 
   - Page padding: px-6 md:px-12 lg:px-24
