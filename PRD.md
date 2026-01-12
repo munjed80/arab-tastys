@@ -95,8 +95,8 @@ This is a social recipe platform with user authentication, profiles, interactive
 - Functionality: Users can comment on photos uploaded by other users, creating threaded discussions around cooking experiences and results
 - Purpose: Enable deeper community engagement around shared cooking experiences, allow users to ask questions about techniques or results, and build conversations around recipes
 - Trigger: Viewing a photo in fullscreen dialog or expanded view
-- Progression: User opens photo → views existing comments → scrolls through comment thread → clicks comment input → types message → submits comment → comment appears in thread with timestamp → can delete own comments → see comment count badge on photos
-- Success criteria: Comments display in chronological order, show user info (name, avatar, timestamp), users can only delete their own comments, comment count updates in real-time, comments persist across sessions, clear visual distinction between photo caption and comments
+- Progression: User opens photo → views existing comments → scrolls through comment thread → clicks comment input → types message → submits comment (Cmd/Ctrl+Enter or click send) → comment appears in thread with timestamp → can delete own comments → see comment count badge on photos
+- Success criteria: Comments display in chronological order, show user info (name, avatar, timestamp), users can only delete their own comments, comment count updates in real-time, comments persist across sessions, clear visual distinction between photo caption and comments, non-logged-in users see comments but are prompted to log in to comment
 
 ## Edge Case Handling
 

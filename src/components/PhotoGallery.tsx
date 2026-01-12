@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import type { UserRecipePhoto, PhotoComment } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
@@ -14,19 +15,20 @@ import { PhotoComments } from '@/components/PhotoComments';
 interface PhotoCardProps {
   photo: UserRecipePhoto;
   currentUserId?: string;
+  commentCount: number;
   onLike: () => void;
   onDelete: () => void;
   onClick: () => void;
 }
 
-export function PhotoCard({ photo, currentUserId, onLike, onDelete, onClick }: PhotoCardProps) {
+export function PhotoCard({ photo, currentUserId, commentCount, onLike, onDelete, onClick }: PhotoCardProps) {
   const isLiked = currentUserId ? photo.likedBy.includes(currentUserId) : false;
   const isOwner = currentUserId === photo.userId;
 
   return (
     <div className="group relative bg-card border border-border rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300">
       <div 
-        className="aspect-square cursor-pointer overflow-hidden"
+        className="aspect-square cursor-pointer overflow-hidden relative"
         onClick={onClick}
       >
         <img
@@ -34,6 +36,15 @@ export function PhotoCard({ photo, currentUserId, onLike, onDelete, onClick }: P
           alt={photo.caption || 'صورة المستخدم'}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
+        {commentCount > 0 && (
+          <Badge 
+            variant="secondary" 
+            className="absolute top-2 left-2 gap-1 bg-background/90 backdrop-blur-sm"
+          >
+            <Chat size={14} weight="fill" />
+            {commentCount}
+          </Badge>
+        )}
       </div>
 
       <div className="p-3 space-y-3">
@@ -89,10 +100,12 @@ export function PhotoCard({ photo, currentUserId, onLike, onDelete, onClick }: P
 interface PhotoGalleryProps {
   recipeId: string;
   currentUserId?: string;
+  onLoginRequired: () => void;
 }
 
-export function PhotoGallery({ recipeId, currentUserId }: PhotoGalleryProps) {
+export function PhotoGallery({ recipeId, currentUserId, onLoginRequired }: PhotoGalleryProps) {
   const [allPhotos, setAllPhotos] = useKV<UserRecipePhoto[]>('user-recipe-photos', []);
+  const [allComments, setAllComments] = useKV<PhotoComment[]>('photo-comments', []);
   const [selectedPhoto, setSelectedPhoto] = useState<UserRecipePhoto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -101,6 +114,11 @@ export function PhotoGallery({ recipeId, currentUserId }: PhotoGalleryProps) {
     const recipePhotos = allPhotos.filter(p => p.recipeId === recipeId);
     return recipePhotos.sort((a, b) => b.createdAt - a.createdAt);
   }, [allPhotos, recipeId]);
+
+  const getCommentCount = (photoId: string) => {
+    if (!allComments) return 0;
+    return allComments.filter(c => c.photoId === photoId).length;
+  };
 
   const handleLike = (photo: UserRecipePhoto) => {
     if (!currentUserId) {
@@ -170,6 +188,7 @@ export function PhotoGallery({ recipeId, currentUserId }: PhotoGalleryProps) {
             key={photo.id}
             photo={photo}
             currentUserId={currentUserId}
+            commentCount={getCommentCount(photo.id)}
             onLike={() => handleLike(photo)}
             onDelete={() => handleDelete(photo)}
             onClick={() => setSelectedPhoto(photo)}
@@ -234,6 +253,14 @@ export function PhotoGallery({ recipeId, currentUserId }: PhotoGalleryProps) {
                   </Button>
                 )}
               </div>
+
+              <Separator />
+
+              <PhotoComments 
+                photoId={selectedPhoto.id}
+                currentUserId={currentUserId}
+                onLoginRequired={onLoginRequired}
+              />
             </div>
           )}
         </DialogContent>

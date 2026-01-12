@@ -229,6 +229,7 @@ export function RecipeDetail({ recipe, open, onClose, currentUser, onLoginRequir
                   key={photosKey}
                   recipeId={recipe.id} 
                   currentUserId={currentUser?.id}
+                  onLoginRequired={onLoginRequired}
                 />
               </div>
             </TabsContent>

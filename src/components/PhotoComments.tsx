@@ -38,7 +38,12 @@ export function PhotoComments({ photoId, currentUserId, onLoginRequired }: Photo
 
     setIsSubmitting(true);
     try {
-      const user = await spark.user();
+      const user = await window.spark.user();
+      
+      if (!user) {
+        toast.error('فشل جلب معلومات المستخدم');
+        return;
+      }
       
       const newComment: PhotoComment = {
         id: `comment-${Date.now()}-${Math.random()}`,
