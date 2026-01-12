@@ -61,6 +61,13 @@ This is a content-rich application with multiple interconnected features includi
 - Progression: User views recipe → switches to reviews tab → sees rating overview and distribution → reads existing reviews → adds their own rating and comment → review posted with success confirmation → can like/unlike other reviews → can delete their own review
 - Success criteria: Rating system accurately calculates and displays average ratings, reviews are sorted by various criteria (newest, highest rated, most liked), review form validates input, users can only review each recipe once, rating distribution chart clearly visualizes all ratings
 
+**User Photo Upload for Recipes**
+- Functionality: Users can upload photos of their completed dishes after trying a recipe, with optional captions describing their experience
+- Purpose: Build visual community engagement, inspire confidence in recipes through real user results, and create authentic social proof
+- Trigger: Clicking on a recipe detail view, then navigating to the "صور المستخدمين" tab
+- Progression: User views recipe → switches to photos tab → sees upload form → selects image file from device → previews image → adds optional caption → uploads photo → photo appears in gallery immediately → can view all photos in grid → click for fullscreen view → can like others' photos → can delete their own photos
+- Success criteria: Image upload supports common formats (JPG, PNG), validates file size (max 5MB), stores images as base64 data URLs, displays in responsive grid, fullscreen dialog shows high quality version, like/unlike functionality works, users can only delete their own photos, photos persist across sessions
+
 ## Edge Case Handling
 
 - **No Search Results**: Display helpful message with suggestion to try different keywords or browse by category
@@ -72,6 +79,10 @@ This is a content-rich application with multiple interconnected features includi
 - **No Reviews Yet**: Display inviting empty state encouraging users to be the first to review
 - **Duplicate Reviews**: Prevent users from submitting multiple reviews for the same recipe
 - **User Not Logged In**: Show reviews but disable rating/commenting functionality with clear login prompt
+- **No Photos Yet**: Display inviting empty state with upload prompt encouraging users to share their cooking results
+- **Large Image Files**: Validate file size before upload and show clear error message if exceeds 5MB limit
+- **Invalid File Types**: Only accept image files and show error for other file types
+- **Photo Upload Failure**: Show clear error message and allow retry if upload fails
 
 ## Design Direction
 
@@ -119,18 +130,19 @@ Animations should feel organic and purposeful, like flipping through a cookbook 
 
 - **Components**: 
   - Card: Recipe thumbnails with hover states, title, metadata overlay
-  - Dialog: Full recipe detail view with scrollable content sections
-  - Input: Search field with Arabic placeholder and clear button
+  - Dialog: Full recipe detail view with scrollable content sections, photo fullscreen viewer
+  - Input: Search field with Arabic placeholder and clear button, file input for photo uploads
   - Select: Dropdown filters for categories (with shadcn Select component)
   - Badge: Cuisine tags, difficulty levels, dietary info with color coding
   - Separator: Dividing sections within recipe details
-  - Button: Primary actions (view recipe), filter chips (clear, apply)
+  - Button: Primary actions (view recipe), filter chips (clear, apply), photo upload
   - Scroll-area: Long ingredient lists and step-by-step instructions
-  - Tabs: Switching between recipe details and reviews sections, as well as "جميع الوصفات", "عربي", "عالمي" views
+  - Tabs: Switching between recipe details, reviews, and user photos sections
   - Sheet: Mobile filter panel sliding from right side
-  - Avatar: User profile pictures in review cards
-  - Textarea: Multi-line review comment input
+  - Avatar: User profile pictures in review cards and photo cards
+  - Textarea: Multi-line review comment input and photo caption input
   - Progress: Visual rating distribution bars showing percentage of each star rating
+  - Label: Form labels for photo upload caption field
   
 - **Customizations**: 
   - Custom recipe card component with image, gradient overlay, metadata grid, and rating stars
@@ -139,6 +151,9 @@ Animations should feel organic and purposeful, like flipping through a cookbook 
   - Custom rating stars component with interactive (clickable) and display-only modes
   - Custom review card with user info, timestamp, rating, comment, and like functionality
   - Custom rating overview with average score, total count, and distribution chart
+  - Custom photo upload form with drag-and-drop area, preview, and caption input
+  - Custom photo card component showing user info, image, caption, and like button
+  - Custom photo gallery grid with responsive columns and fullscreen viewer
   - RTL-optimized layout wrapper ensuring all components flow right-to-left
   
 - **States**: 
@@ -160,8 +175,11 @@ Animations should feel organic and purposeful, like flipping through a cookbook 
   - ChatCircleDots for reviews/comments section
   - ThumbsUp for liking reviews
   - PaperPlaneRight for submitting reviews
-  - Trash for deleting reviews
+  - Trash for deleting reviews and photos
   - SortAscending for review sorting options
+  - Image for photo gallery and upload sections
+  - Upload for photo upload call-to-action
+  - Heart for liking user photos
   
 - **Spacing**: 
   - Page padding: px-6 md:px-12 lg:px-24

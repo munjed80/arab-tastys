@@ -35,6 +35,19 @@ export interface Review {
   likedBy: string[];
 }
 
+export interface UserRecipePhoto {
+  id: string;
+  recipeId: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  photoDataUrl: string;
+  caption?: string;
+  createdAt: number;
+  likes: number;
+  likedBy: string[];
+}
+
 export interface RecipeRating {
   recipeId: string;
   averageRating: number;

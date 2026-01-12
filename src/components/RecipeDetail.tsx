@@ -8,6 +8,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ShareButton } from '@/components/ShareButton';
 import { RecipeReviews } from '@/components/RecipeReviews';
+import { PhotoGallery } from '@/components/PhotoGallery';
+import { PhotoUploadForm } from '@/components/PhotoUploadForm';
 
 interface RecipeDetailProps {
   recipe: Recipe | null;
@@ -17,6 +19,7 @@ interface RecipeDetailProps {
 
 export function RecipeDetail({ recipe, open, onClose }: RecipeDetailProps) {
   const [user, setUser] = useState<{ id: string; login: string; avatarUrl?: string } | null>(null);
+  const [photosKey, setPhotosKey] = useState(0);
 
   useEffect(() => {
     async function fetchUser() {
@@ -33,6 +36,10 @@ export function RecipeDetail({ recipe, open, onClose }: RecipeDetailProps) {
     }
     fetchUser();
   }, []);
+
+  const handlePhotoUploaded = () => {
+    setPhotosKey(prev => prev + 1);
+  };
 
   if (!recipe) return null;
 
@@ -84,9 +91,10 @@ export function RecipeDetail({ recipe, open, onClose }: RecipeDetailProps) {
 
         <ScrollArea className="max-h-[calc(90vh-16rem)] px-6 pb-6">
           <Tabs defaultValue="recipe" dir="rtl" className="w-full">
-            <TabsList className="w-full grid grid-cols-2 mb-6">
+            <TabsList className="w-full grid grid-cols-3 mb-6">
               <TabsTrigger value="recipe">الوصفة</TabsTrigger>
-              <TabsTrigger value="reviews">التقييمات والتعليقات</TabsTrigger>
+              <TabsTrigger value="reviews">التقييمات</TabsTrigger>
+              <TabsTrigger value="photos">صور المستخدمين</TabsTrigger>
             </TabsList>
 
             <TabsContent value="recipe" className="space-y-6">
@@ -202,6 +210,31 @@ export function RecipeDetail({ recipe, open, onClose }: RecipeDetailProps) {
                 currentUserName={user?.login}
                 currentUserAvatar={user?.avatarUrl}
               />
+            </TabsContent>
+
+            <TabsContent value="photos" className="space-y-6">
+              {user && (
+                <div className="bg-card border border-border rounded-lg p-6">
+                  <h3 className="text-lg font-bold mb-4">شارك صورتك لهذه الوصفة</h3>
+                  <PhotoUploadForm
+                    recipeId={recipe.id}
+                    recipeName={recipe.name}
+                    userId={user.id}
+                    userName={user.login}
+                    userAvatar={user.avatarUrl}
+                    onPhotoUploaded={handlePhotoUploaded}
+                  />
+                </div>
+              )}
+
+              <div>
+                <h3 className="text-lg font-bold mb-4">تجارب المستخدمين</h3>
+                <PhotoGallery 
+                  key={photosKey}
+                  recipeId={recipe.id} 
+                  currentUserId={user?.id}
+                />
+              </div>
             </TabsContent>
           </Tabs>
         </ScrollArea>
