@@ -1,13 +1,15 @@
 import { useState, useMemo } from 'react';
-import { Heart, Trash, Image as ImageIcon } from '@phosphor-icons/react';
+import { Heart, Trash, Image as ImageIcon, Chat } from '@phosphor-icons/react';
 import { useKV } from '@github/spark/hooks';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import type { UserRecipePhoto } from '@/lib/types';
+import type { UserRecipePhoto, PhotoComment } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { PhotoComments } from '@/components/PhotoComments';
 
 interface PhotoCardProps {
   photo: UserRecipePhoto;

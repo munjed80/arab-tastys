@@ -91,6 +91,13 @@ This is a social recipe platform with user authentication, profiles, interactive
 - Progression: User views recipe → switches to photos tab → sees upload form → selects image file from device → previews image → adds optional caption → uploads photo → photo appears in gallery immediately → can view all photos in grid → click for fullscreen view → can like others' photos → can delete their own photos
 - Success criteria: Image upload supports common formats (JPG, PNG), validates file size (max 5MB), stores images as base64 data URLs, displays in responsive grid, fullscreen dialog shows high quality version, like/unlike functionality works, users can only delete their own photos, photos persist across sessions
 
+**Photo Comments System**
+- Functionality: Users can comment on photos uploaded by other users, creating threaded discussions around cooking experiences and results
+- Purpose: Enable deeper community engagement around shared cooking experiences, allow users to ask questions about techniques or results, and build conversations around recipes
+- Trigger: Viewing a photo in fullscreen dialog or expanded view
+- Progression: User opens photo → views existing comments → scrolls through comment thread → clicks comment input → types message → submits comment → comment appears in thread with timestamp → can delete own comments → see comment count badge on photos
+- Success criteria: Comments display in chronological order, show user info (name, avatar, timestamp), users can only delete their own comments, comment count updates in real-time, comments persist across sessions, clear visual distinction between photo caption and comments
+
 ## Edge Case Handling
 
 - **User Not Authenticated**: Show limited view with login prompt for social features, allow browsing recipes without login
@@ -110,6 +117,9 @@ This is a social recipe platform with user authentication, profiles, interactive
 - **Large Image Files**: Validate file size before upload and show clear error message if exceeds 5MB limit
 - **Invalid File Types**: Only accept image files and show error for other file types
 - **Photo Upload Failure**: Show clear error message and allow retry if upload fails
+- **No Comments on Photo**: Display empty state encouraging first comment
+- **User Not Logged In for Comments**: Show comments but disable comment input with login prompt
+- **Empty Comment Submission**: Validate comment is not empty before allowing submission
 - **Empty Feed**: Show welcome message for new users with suggestions to explore recipes
 
 ## Design Direction
@@ -202,12 +212,13 @@ Animations should feel organic and purposeful, like flipping through a cookbook 
   - Star for ratings (filled, outlined, and half states)
   - ChatCircleDots for reviews/comments section
   - ThumbsUp for liking reviews
-  - PaperPlaneRight for submitting reviews
-  - Trash for deleting reviews and photos
+  - PaperPlaneRight for submitting reviews and comments
+  - Trash for deleting reviews, photos, and comments
   - SortAscending for review sorting options
   - Image for photo gallery and upload sections
   - Upload for photo upload call-to-action
   - Heart for liking user photos
+  - Chat for photo comments section
   
 - **Spacing**: 
   - Page padding: px-6 md:px-12 lg:px-24

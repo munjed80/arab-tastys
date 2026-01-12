@@ -46,6 +46,17 @@ export interface UserRecipePhoto {
   createdAt: number;
   likes: number;
   likedBy: string[];
+  commentCount?: number;
+}
+
+export interface PhotoComment {
+  id: string;
+  photoId: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  comment: string;
+  createdAt: number;
 }
 
 export interface RecipeRating {
