@@ -47,6 +47,13 @@ This is a content-rich application with multiple interconnected features includi
 - Progression: User clicks category → filtered view displays → user browses results → can apply additional filters
 - Success criteria: Categories are visually distinct, easy to navigate, clear recipe counts
 
+**Social Media Sharing**
+- Functionality: Share recipe links directly to Facebook, Twitter, WhatsApp, Telegram, or copy link to clipboard
+- Purpose: Enable users to share favorite recipes with friends and family through their preferred platform
+- Trigger: Clicking the share button on recipe cards (on hover) or in recipe detail view
+- Progression: User clicks share button → popover opens with platform options → user selects platform → share window opens or link copied → success confirmation shown
+- Success criteria: Share URLs contain recipe title and description, all platforms open correctly, copy-to-clipboard works reliably, clear success feedback provided
+
 ## Edge Case Handling
 
 - **No Search Results**: Display helpful message with suggestion to try different keywords or browse by category

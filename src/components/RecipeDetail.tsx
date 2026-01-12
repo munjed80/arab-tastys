@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ShareButton } from '@/components/ShareButton';
 
 interface RecipeDetailProps {
   recipe: Recipe | null;
@@ -29,10 +30,16 @@ export function RecipeDetail({ recipe, open, onClose }: RecipeDetailProps) {
           
           <button
             onClick={onClose}
-            className="absolute top-4 left-4 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
+            className="absolute top-4 left-4 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors z-10"
           >
             <X size={20} weight="bold" />
           </button>
+
+          <div className="absolute top-4 right-4 z-10">
+            <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-lg">
+              <ShareButton recipe={recipe} variant="ghost" size="default" />
+            </div>
+          </div>
 
           <div className="absolute bottom-0 left-0 right-0 p-6">
             <DialogHeader>

@@ -1,7 +1,9 @@
-import { Clock, ChefHat, Users } from '@phosphor-icons/react';
+import { Clock, ChefHat, Users, ShareNetwork } from '@phosphor-icons/react';
 import type { Recipe } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { ShareButton } from '@/components/ShareButton';
+import { Button } from '@/components/ui/button';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -15,6 +17,10 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
     'صعب': 'bg-destructive/20 text-destructive',
   };
 
+  const handleShareClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <Card 
       className="group cursor-pointer overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
@@ -22,10 +28,13 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
     >
       <div className="relative h-48 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20 overflow-hidden">
         <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,oklch(0.45_0.15_35_/_0.05)_10px,oklch(0.45_0.15_35_/_0.05)_20px)]" />
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex items-center gap-2">
           <Badge className={difficultyColors[recipe.difficulty]}>
             {recipe.difficulty}
           </Badge>
+        </div>
+        <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity" onClick={handleShareClick}>
+          <ShareButton recipe={recipe} variant="ghost" size="icon" />
         </div>
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
           <h3 className="text-white font-bold text-xl line-clamp-2">
