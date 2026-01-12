@@ -1,6 +1,6 @@
 import { Clock, ChefHat, Users, Flame, X } from '@phosphor-icons/react';
-import { useEffect, useState } from 'react';
-import type { Recipe } from '@/lib/types';
+import { useState } from 'react';
+import type { Recipe, User } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -15,27 +15,12 @@ interface RecipeDetailProps {
   recipe: Recipe | null;
   open: boolean;
   onClose: () => void;
+  currentUser: User | null;
+  onLoginRequired: () => void;
 }
 
-export function RecipeDetail({ recipe, open, onClose }: RecipeDetailProps) {
-  const [user, setUser] = useState<{ id: string; login: string; avatarUrl?: string } | null>(null);
+export function RecipeDetail({ recipe, open, onClose, currentUser, onLoginRequired }: RecipeDetailProps) {
   const [photosKey, setPhotosKey] = useState(0);
-
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const userData = await spark.user();
-        setUser({
-          id: userData.id,
-          login: userData.login,
-          avatarUrl: userData.avatarUrl,
-        });
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      }
-    }
-    fetchUser();
-  }, []);
 
   const handlePhotoUploaded = () => {
     setPhotosKey(prev => prev + 1);
@@ -206,24 +191,35 @@ export function RecipeDetail({ recipe, open, onClose }: RecipeDetailProps) {
               <RecipeReviews
                 recipeId={recipe.id}
                 recipeName={recipe.name}
-                currentUserId={user?.id}
-                currentUserName={user?.login}
-                currentUserAvatar={user?.avatarUrl}
+                currentUserId={currentUser?.id}
+                currentUserName={currentUser?.name}
+                currentUserAvatar={currentUser?.avatar}
+                onLoginRequired={onLoginRequired}
               />
             </TabsContent>
 
             <TabsContent value="photos" className="space-y-6">
-              {user && (
+              {currentUser ? (
                 <div className="bg-card border border-border rounded-lg p-6">
                   <h3 className="text-lg font-bold mb-4">شارك صورتك لهذه الوصفة</h3>
                   <PhotoUploadForm
                     recipeId={recipe.id}
                     recipeName={recipe.name}
-                    userId={user.id}
-                    userName={user.login}
-                    userAvatar={user.avatarUrl}
+                    userId={currentUser.id}
+                    userName={currentUser.name}
+                    userAvatar={currentUser.avatar}
                     onPhotoUploaded={handlePhotoUploaded}
                   />
+                </div>
+              ) : (
+                <div className="bg-muted/50 rounded-lg p-6 text-center">
+                  <p className="text-muted-foreground mb-3">سجل دخولك لمشاركة صورتك</p>
+                  <button
+                    onClick={onLoginRequired}
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    تسجيل الدخول
+                  </button>
                 </div>
               )}
 
@@ -232,7 +228,7 @@ export function RecipeDetail({ recipe, open, onClose }: RecipeDetailProps) {
                 <PhotoGallery 
                   key={photosKey}
                   recipeId={recipe.id} 
-                  currentUserId={user?.id}
+                  currentUserId={currentUser?.id}
                 />
               </div>
             </TabsContent>

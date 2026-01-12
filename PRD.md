@@ -8,7 +8,30 @@
 3. **Informative** - Each recipe provides comprehensive details including ingredients, steps, timing, and complete nutritional breakdown to help users make informed cooking decisions
 
 **Complexity Level**: Complex Application (advanced functionality, likely with multiple views)
-This is a content-rich application with multiple interconnected features including recipe browsing, detailed recipe views, multi-faceted filtering/search, categorization systems, and comprehensive data management requiring sophisticated state handling.
+This is a social recipe platform with user authentication, profiles, interactive features (reviews, ratings, photo uploads), recipe browsing, detailed recipe views, multi-faceted filtering/search, categorization systems, and comprehensive data management requiring sophisticated state handling.
+
+## Essential Features
+
+**User Authentication with Google**
+- Functionality: Users can sign in using their Google/Gmail account to access social features
+- Purpose: Enable personalized experience, user-generated content ownership, and social interactions
+- Trigger: Clicking "تسجيل الدخول" button in header or when attempting to access protected features
+- Progression: User clicks login → Google OAuth popup opens → user authorizes → popup closes → user redirected back logged in → profile loaded
+- Success criteria: Seamless OAuth flow, user data persisted, logged-in state maintained across sessions, clear visual indication of logged-in status
+
+**User Profile Management**
+- Functionality: Display user's profile with avatar, name, bio, recipe contributions, reviews written, and photos uploaded
+- Purpose: Create sense of community and identity within the platform
+- Trigger: Clicking user avatar in header or viewing own contributions
+- Progression: User navigates to profile → sees activity summary → can edit bio → view all contributions → track engagement metrics
+- Success criteria: Profile shows accurate data, avatar from Google account, contributions are linked and accessible
+
+**Social Feed / Activity Stream**
+- Functionality: Timeline showing recent activity from the community (new recipes, reviews, photos, ratings)
+- Purpose: Create engaging social experience and discover community content
+- Trigger: Landing on homepage or clicking "الصفحة الرئيسية" in navigation
+- Progression: User views feed → sees recent activities → can interact (like, comment) → click to view full content → return to feed
+- Success criteria: Feed updates with new content, shows diverse activity types, infinite scroll or pagination works smoothly
 
 ## Essential Features
 
@@ -70,6 +93,10 @@ This is a content-rich application with multiple interconnected features includi
 
 ## Edge Case Handling
 
+- **User Not Authenticated**: Show limited view with login prompt for social features, allow browsing recipes without login
+- **Google OAuth Failure**: Display clear error message with retry option if OAuth flow fails or is cancelled
+- **Expired Session**: Automatically refresh token or prompt re-login with seamless UX
+- **Network Offline**: Show cached content where possible, clear indicators when features require connection
 - **No Search Results**: Display helpful message with suggestion to try different keywords or browse by category
 - **Empty Filter Combination**: Show "no recipes match these filters" with quick clear filters button
 - **Missing Recipe Data**: Gracefully handle missing nutritional info or images with placeholders and "information unavailable" labels
@@ -83,6 +110,7 @@ This is a content-rich application with multiple interconnected features includi
 - **Large Image Files**: Validate file size before upload and show clear error message if exceeds 5MB limit
 - **Invalid File Types**: Only accept image files and show error for other file types
 - **Photo Upload Failure**: Show clear error message and allow retry if upload fails
+- **Empty Feed**: Show welcome message for new users with suggestions to explore recipes
 
 ## Design Direction
 

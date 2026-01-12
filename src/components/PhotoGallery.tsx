@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Heart, Trash, Image as ImageIcon } from '@phosphor-icons/react';
+import { useKV } from '@github/spark/hooks';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -89,36 +90,25 @@ interface PhotoGalleryProps {
 }
 
 export function PhotoGallery({ recipeId, currentUserId }: PhotoGalleryProps) {
-  const [photos, setPhotos] = useState<UserRecipePhoto[]>([]);
+  const [allPhotos, setAllPhotos] = useKV<UserRecipePhoto[]>('user-recipe-photos', []);
   const [selectedPhoto, setSelectedPhoto] = useState<UserRecipePhoto | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const loadPhotos = async () => {
-    try {
-      const allPhotos = await spark.kv.get<UserRecipePhoto[]>('user-recipe-photos') || [];
-      const recipePhotos = allPhotos.filter(p => p.recipeId === recipeId);
-      recipePhotos.sort((a, b) => b.createdAt - a.createdAt);
-      setPhotos(recipePhotos);
-    } catch (error) {
-      console.error('Error loading photos:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const photos = useMemo(() => {
+    if (!allPhotos) return [];
+    const recipePhotos = allPhotos.filter(p => p.recipeId === recipeId);
+    return recipePhotos.sort((a, b) => b.createdAt - a.createdAt);
+  }, [allPhotos, recipeId]);
 
-  useEffect(() => {
-    loadPhotos();
-  }, [recipeId]);
-
-  const handleLike = async (photo: UserRecipePhoto) => {
+  const handleLike = (photo: UserRecipePhoto) => {
     if (!currentUserId) {
       toast.error('يجب تسجيل الدخول للإعجاب بالصور');
       return;
     }
 
-    try {
-      const allPhotos = await spark.kv.get<UserRecipePhoto[]>('user-recipe-photos') || [];
-      const updatedPhotos = allPhotos.map(p => {
+    setAllPhotos(currentPhotos => {
+      if (!currentPhotos) return [];
+      return currentPhotos.map(p => {
         if (p.id === photo.id) {
           const isLiked = p.likedBy.includes(currentUserId);
           return {
@@ -131,32 +121,21 @@ export function PhotoGallery({ recipeId, currentUserId }: PhotoGalleryProps) {
         }
         return p;
       });
-
-      await spark.kv.set('user-recipe-photos', updatedPhotos);
-      await loadPhotos();
-    } catch (error) {
-      console.error('Error liking photo:', error);
-      toast.error('حدث خطأ أثناء الإعجاب بالصورة');
-    }
+    });
   };
 
-  const handleDelete = async (photo: UserRecipePhoto) => {
+  const handleDelete = (photo: UserRecipePhoto) => {
     if (photo.userId !== currentUserId) {
       toast.error('لا يمكنك حذف صور الآخرين');
       return;
     }
 
-    try {
-      const allPhotos = await spark.kv.get<UserRecipePhoto[]>('user-recipe-photos') || [];
-      const updatedPhotos = allPhotos.filter(p => p.id !== photo.id);
-      await spark.kv.set('user-recipe-photos', updatedPhotos);
-      await loadPhotos();
-      toast.success('تم حذف الصورة بنجاح');
-      setSelectedPhoto(null);
-    } catch (error) {
-      console.error('Error deleting photo:', error);
-      toast.error('حدث خطأ أثناء حذف الصورة');
-    }
+    setAllPhotos(currentPhotos => {
+      if (!currentPhotos) return [];
+      return currentPhotos.filter(p => p.id !== photo.id);
+    });
+    toast.success('تم حذف الصورة بنجاح');
+    setSelectedPhoto(null);
   };
 
   if (isLoading) {

@@ -17,6 +17,7 @@ interface RecipeReviewsProps {
   currentUserId?: string;
   currentUserName?: string;
   currentUserAvatar?: string;
+  onLoginRequired: () => void;
 }
 
 type SortOption = 'newest' | 'oldest' | 'highest' | 'lowest' | 'most-liked';
@@ -27,6 +28,7 @@ export function RecipeReviews({
   currentUserId,
   currentUserName,
   currentUserAvatar,
+  onLoginRequired,
 }: RecipeReviewsProps) {
   const [reviews, setReviews] = useKV<Review[]>('recipe-reviews', []);
   const [ratings, setRatings] = useKV<Record<string, RecipeRating>>('recipe-ratings', {});
@@ -204,7 +206,7 @@ export function RecipeReviews({
 
       <Separator />
 
-      {currentUserId && currentUserName && !userHasReviewed && (
+      {currentUserId && currentUserName && !userHasReviewed ? (
         <>
           <ReviewForm
             recipeId={recipeId}
@@ -215,6 +217,16 @@ export function RecipeReviews({
           />
           <Separator />
         </>
+      ) : !currentUserId && (
+        <div className="bg-muted/50 rounded-lg p-6 text-center">
+          <p className="text-muted-foreground mb-3">سجل دخولك لإضافة تقييمك ومشاركة تجربتك</p>
+          <button
+            onClick={onLoginRequired}
+            className="text-primary hover:underline font-semibold"
+          >
+            تسجيل الدخول
+          </button>
+        </div>
       )}
 
       <div className="flex items-center justify-between gap-4">

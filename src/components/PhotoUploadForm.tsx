@@ -1,9 +1,11 @@
 import { useState, useRef, ChangeEvent } from 'react';
 import { Image, Upload, X } from '@phosphor-icons/react';
+import { useKV } from '@github/spark/hooks';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import type { UserRecipePhoto } from '@/lib/types';
 
 interface PhotoUploadFormProps {
   recipeId: string;
@@ -22,6 +24,7 @@ export function PhotoUploadForm({
   userAvatar,
   onPhotoUploaded,
 }: PhotoUploadFormProps) {
+  const [photos, setPhotos] = useKV<UserRecipePhoto[]>('user-recipe-photos', []);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -48,44 +51,40 @@ export function PhotoUploadForm({
     reader.readAsDataURL(file);
   };
 
-  const handleUpload = async () => {
+  const handleUpload = () => {
     if (!photoPreview) {
       toast.error('يرجى اختيار صورة أولاً');
       return;
     }
 
     setIsUploading(true);
-    try {
-      const photos = await spark.kv.get<any[]>('user-recipe-photos') || [];
-      
-      const newPhoto = {
-        id: `photo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        recipeId,
-        userId,
-        userName,
-        userAvatar,
-        photoDataUrl: photoPreview,
-        caption: caption.trim() || undefined,
-        createdAt: Date.now(),
-        likes: 0,
-        likedBy: [],
-      };
+    
+    const newPhoto: UserRecipePhoto = {
+      id: `photo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      recipeId,
+      userId,
+      userName,
+      userAvatar,
+      photoDataUrl: photoPreview,
+      caption: caption.trim() || undefined,
+      createdAt: Date.now(),
+      likes: 0,
+      likedBy: [],
+    };
 
-      await spark.kv.set('user-recipe-photos', [...photos, newPhoto]);
-      
-      toast.success('تم تحميل الصورة بنجاح!');
-      setPhotoPreview(null);
-      setCaption('');
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-      onPhotoUploaded();
-    } catch (error) {
-      console.error('Error uploading photo:', error);
-      toast.error('حدث خطأ أثناء تحميل الصورة');
-    } finally {
-      setIsUploading(false);
+    setPhotos(currentPhotos => {
+      if (!currentPhotos) return [newPhoto];
+      return [...currentPhotos, newPhoto];
+    });
+    
+    toast.success('تم تحميل الصورة بنجاح!');
+    setPhotoPreview(null);
+    setCaption('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
+    onPhotoUploaded();
+    setIsUploading(false);
   };
 
   const handleRemovePreview = () => {

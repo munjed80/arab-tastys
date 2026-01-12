@@ -85,3 +85,28 @@ export interface FilterOptions {
   mealType: MealType[];
   difficulty: DifficultyLevel[];
 }
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  avatar: string;
+  bio?: string;
+  createdAt: number;
+}
+
+export type ActivityType = 'recipe' | 'review' | 'photo' | 'rating';
+
+export interface Activity {
+  id: string;
+  type: ActivityType;
+  userId: string;
+  userName: string;
+  userAvatar: string;
+  recipeId: string;
+  recipeName: string;
+  content?: string;
+  rating?: number;
+  photoUrl?: string;
+  createdAt: number;
+}
